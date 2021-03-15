@@ -15,15 +15,19 @@
         </th>
       </tr>
     </table>
+    <NotificationBox/>
   </div>
 </template>
 <script>
+
+import NotificationBox from '../src/components/notification/NotificationBox'
 import Header from "@/components/admin/Header";
 import Navigation from "@/components/admin/Navigation";
 export default {
   components: {
     Header: Header,
-    Navigation: Navigation
+    Navigation: Navigation,
+    NotificationBox : NotificationBox
   }
 };
 </script>
