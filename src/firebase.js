@@ -1,5 +1,4 @@
-importScripts('https://www.gstatic.com/firebasejs/8.2.9/firebase-app.js');
-importScripts('https://www.gstatic.com/firebasejs/8.2.9/firebase-messaging.js');
+import firebase from 'firebase';
 
 var firebaseConfig = {
     apiKey: "AIzaSyBZOR3FERmrQ1ZoLUNShtBqphdXTZkCb2w",
@@ -9,12 +8,7 @@ var firebaseConfig = {
     messagingSenderId: "918318848462",
     appId: "1:918318848462:web:326b0953dd28ae60dbf39f"
 };
-
+// Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 
-const messaging = firebase.messaging();
-
-messaging.onBackgroundMessage((payload) => {
-    console.log('Received background message ', payload);
-
-});
+export default firebase;

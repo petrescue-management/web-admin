@@ -2,7 +2,7 @@
   <div class="vertical-center">
     <div class="inner-block">
       <div class="vue-tempalte">
-        <form>
+        <form v-loading.fullscreen.lock="fullscreenLoading">
           <h3>Sign In</h3>
 
           <div class="form-group">
@@ -37,7 +37,8 @@
 </template>
 
 <script>
-import { loginApi } from "@/api/admin/loginApi";
+import { loginApi, getDetailUser } from "@/api/admin/loginApi";
+import { mapActions } from "vuex";
 import firebase from "firebase";
 export default {
   data() {
@@ -45,19 +46,48 @@ export default {
       fullscreenLoading: false,
       email: "petrescue2021@gmail.com",
       password: "pet012345",
+      jwtToken: null,
     };
   },
 
   methods: {
+    ...mapActions("user", ["loginUser"]),
+
     async login() {
+      this.fullscreenLoading = true;
       let deviceToken = await firebase.messaging().getToken();
       let data = {
         email: this.email,
         password: this.password,
         deviceToken,
       };
-      await loginApi(data);
-      this.$router.push({ name: "MainAdmin" });
+
+      await loginApi(data)
+        .then((response) => response.text())
+        .then((data) => {
+          this.jwtToken = data;
+        });
+
+      await getDetailUser(this.jwtToken)
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.roles.includes("sysadmin")) {
+            data.token = this.jwtToken;
+            this.loginUser(data);
+            this.fullscreenLoading = false;
+            this.$message({
+              message: "Login thành công",
+              type: "success",
+            });
+            this.$router.push({ name: "MainAdmin" });
+          } else {
+            this.fullscreenLoading = false;
+            this.$message({
+              message: "Tài khoản này không tồn tại",
+              type: "error",
+            });
+          }
+        });
     },
   },
 };

@@ -2,7 +2,7 @@ import Vue from 'vue'
 import App from './App.vue'
 import router from './router'
 import store from "./store/index";
-import firebase from 'firebase';
+import firebase from "./firebase";
 import * as ElementUI from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css';
 import { BootstrapVue, IconsPlugin } from 'bootstrap-vue'
@@ -15,17 +15,6 @@ Vue.config.productionTip = false
 Vue.use(ElementUI);
 Vue.use(BootstrapVue);
 Vue.use(IconsPlugin);
-
-var firebaseConfig = {
-    apiKey: "AIzaSyBZOR3FERmrQ1ZoLUNShtBqphdXTZkCb2w",
-    authDomain: "pet-rescue-fb.firebaseapp.com",
-    projectId: "pet-rescue-fb",
-    storageBucket: "pet-rescue-fb.appspot.com",
-    messagingSenderId: "918318848462",
-    appId: "1:918318848462:web:326b0953dd28ae60dbf39f"
-};
-// Initialize Firebase
-firebase.initializeApp(firebaseConfig);
 
 const messaging = firebase.messaging();
 messaging.requestPermission()

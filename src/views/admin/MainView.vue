@@ -20,14 +20,42 @@
 </template>
 <script>
 
-import NotificationBox from '../src/components/notification/NotificationBox'
+import NotificationBox from '@/components/notification/NotificationBox'
 import Header from "@/components/admin/Header";
 import Navigation from "@/components/admin/Navigation";
+import CenterService from "@/services/CenterService";
 export default {
   components: {
     Header: Header,
     Navigation: Navigation,
     NotificationBox : NotificationBox
-  }
+  },
+
+  methods: {
+    onDataChange(items) {
+      let _noti = [];
+
+      items.forEach((item) => {
+        let key = item.key;
+        let data = item.val();
+        _noti.push({
+          key: key,
+          id: data.id,
+          noti: data.noti
+        });
+      });
+
+      this.listNoti = _noti;
+      console.log(this.listNoti);
+    },
+  },
+
+  mounted() {
+    CenterService.getAll().on("value", this.onDataChange);
+  },
+
+  beforeDestroy() {
+    CenterService.getAll().off("value", this.onDataChange);
+  },
 };
 </script>

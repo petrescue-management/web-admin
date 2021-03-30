@@ -67,6 +67,7 @@
 import { mapGetters, mapActions } from "vuex";
 import RegisterFormDetail from "./modal/RegisterFormDetail";
 import { centerRegisterStatus } from "@/enum/center-register-status-enum";
+import EventBus from "@/EventBus";
 export default {
   components: {
     RegisterFormDetail,
@@ -115,6 +116,13 @@ export default {
       this.dialogVisible = true;
       this.id = id;
     },
+  },
+
+  mounted() {
+    EventBus.$on("CloseDialog", (value) => {
+      this.dialogVisible = value;
+      this.getCenter(1);
+    });
   },
 
   created() {

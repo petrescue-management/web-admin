@@ -15,25 +15,27 @@
       </div>
       <div class="table">
         <el-row>
-          <el-col :span="12" class="title"> Email </el-col>
-          <el-col :span="12" class="title"> Phone </el-col>
+          <el-col :span="14" class="title"> Email </el-col>
+          <el-col :span="10" class="title"> Phone </el-col>
         </el-row>
         <el-row>
-          <el-col :span="12" class="content">
+          <el-col :span="14" class="content">
             <p>{{ form.email }}</p>
           </el-col>
-          <el-col :span="12" class="content">
+          <el-col :span="10" class="content">
             <p>{{ form.phone }}</p>
           </el-col>
         </el-row>
       </div>
       <hr />
-      <div class="location">
-        <i class="el-icon-location icon" />
-      </div>
-      <div class="location" style="padding: 5px 10px 0px 10px">
-        <span>{{ form.address }}</span>
-      </div>
+      <el-row>
+        <el-col :span="2" class="location">
+          <i class="el-icon-location icon" />
+        </el-col>
+        <el-col :span="22" class="location">
+          <span>{{ form.address }}</span>
+        </el-col>
+      </el-row>
       <hr />
       <div class="table">
         <el-row>
@@ -46,21 +48,17 @@
         </el-row>
       </div>
       <div class="button" v-if="form.status != 2 || form.status != 3">
-        <el-button type="success" @click="changeStatus(2)"
-          >Accept</el-button
-        >
-        <el-button type="danger" @click="changeStatus(3)"
-          >Reject</el-button
-        >
+        <el-button type="success" @click="changeStatus(2)">Accept</el-button>
+        <el-button type="danger" @click="changeStatus(3)">Reject</el-button>
       </div>
     </el-main>
   </div>
 </template>
 <script>
 import { mapGetters, mapActions } from "vuex";
-import {changeStatusRegisterCenterFormByIdAPI} from "@/api/admin/registerCenterFormApi";
-// import { status } from "@/enum/center-register-status-enum";
-// import EventBus from "@/EventBus";
+import { changeStatusRegisterCenterFormByIdAPI } from "@/api/admin/registerCenterFormApi";
+import EventBus from "@/EventBus";
+import CenterService from "@/services/CenterService";
 export default {
   props: ["id"],
   name: "RegisterFormDetail",
@@ -85,7 +83,7 @@ export default {
     ...mapGetters("registerForm", ["getFormDetail"]),
 
     getUser() {
-      let user = localStorage.getItem("user");
+      let user = localStorage.getItem("admin");
       return JSON.parse(user);
     },
   },
@@ -100,20 +98,66 @@ export default {
         address: this.getFormDetail.address,
         email: this.getFormDetail.email,
         description: this.getFormDetail.description,
-        status : this.getFormDetail.status
+        status: this.getFormDetail.status,
       };
-      this.loading = false
+      this.loading = false;
+    },
+
+    saveCenterToRealtimeDB(id) {
+      let today = new Date();
+      let date =
+        today.getFullYear() +
+        "-" +
+        (today.getMonth() + 1) +
+        "-" +
+        today.getDate();
+      let time =
+        today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+      let datetime = date + " " + time;
+
+      let data = {
+          Notification: {
+            'create-center': {
+              date: datetime,
+              isCheck: false,
+              type: 3,
+            },
+          },
+      };
+
+      CenterService.create(id,data)
+        .then(() => {
+          console.log("Created new item successfully!");
+        })
+        .catch((e) => {
+          console.log(e);
+        });
     },
 
     async changeStatus(status) {
+      this.loading = true;
       let data = {
-        id : this.id,
+        id: this.id,
         status,
-        idToken : this.getUser.token
-      }
-      await changeStatusRegisterCenterFormByIdAPI(data)
-    }
+        idToken: this.getUser.token,
+      };
+      await changeStatusRegisterCenterFormByIdAPI(data).then((response) => {
+        if (response.status == 200) {
+          response.text().then((data) => {
+            this.loading = false;
+            if(status == 2){
+              this.saveCenterToRealtimeDB(data);
+            }
+            EventBus.$emit("CloseDialog", false);
+          });
+        }else{
+          console.log("error")
+          this.loading = false;
+        }
+      })
+    },
   },
+
   created() {
     this.loading = true;
     let data = {
@@ -137,9 +181,8 @@ export default {
   height: 100px;
 }
 .location {
-  float: left;
   text-align: left;
-  font-size: 18px;
+  font-size: 16px;
 }
 .icon {
   font-size: 40px;
@@ -147,7 +190,7 @@ export default {
 }
 .header {
   font-size: 27px;
-  color: #5D6F92;
+  color: #5d6f92;
 }
 .date {
   font-size: 18px;

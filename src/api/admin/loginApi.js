@@ -16,3 +16,14 @@ export function loginApi(data) {
         body: JSON.stringify(requestBody),
     });
 }
+
+export function getDetailUser(token) {
+    return fetch(baseURL + `api/users`, {
+        method: "GET",
+        headers: {
+            "content-type": "application/json",
+            Accept: "*/*",
+            Authorization: "Bearer " + token
+        }
+    });
+}
