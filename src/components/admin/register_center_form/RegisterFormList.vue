@@ -2,45 +2,49 @@
   <div>
     <el-main>
       <div style="text-align: left; padding: 20px 0px">
-        <span class="title">List</span>
+        <span class="title">Đơn đăng ký trung tâm</span>
       </div>
       <div>
-        <el-table :data="listForm" v-loading="loading">
+        <el-table
+          :data="listForm"
+          v-loading="loading"
+          :default-sort="{ prop: 'status', order: 'ascending' }"
+        >
+          <el-table-column
+            prop="insertedAt"
+            label="Ngày đăng ký"
+            width="150"
+          ></el-table-column>
           <el-table-column
             prop="name"
-            label="Center Name"
-            width="180"
-          ></el-table-column>
-          <el-table-column
-            prop="phone"
-            label="Phone"
-            width="180"
-          ></el-table-column>
-          <el-table-column
-            prop="address"
-            label="Center Address"
-            width="250"
+            label="Tên trung tâm"
+            width="300"
           ></el-table-column>
           <el-table-column
             prop="email"
             label="Email"
-            width="180"
+            width="250"
           ></el-table-column>
-          <el-table-column label="Trạng thái" width="180">
+          <el-table-column
+            label="Trạng thái"
+            prop="status"
+            sortable
+          >
             <template slot-scope="scope">
               <el-tag class="status" :type="scope.row.color" size="small">
                 {{ scope.row.status }}
               </el-tag>
             </template>
           </el-table-column>
-          <el-table-column label="Chi tiết" width="100">
+          <el-table-column label="Chi tiết">
             <template slot-scope="scope">
               <el-button
-                type="text"
-                size="small"
+                size="mini"
+                type="info"
+                icon="el-icon-view"
+                style="font-size: 16px"
                 @click="goToDetail(scope.row.id)"
-                >Detail</el-button
-              >
+              ></el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -53,35 +57,38 @@
         ></el-pagination> -->
       </div>
     </el-main>
-    <el-dialog
-      title="DETAILS OF REGISTRATION FORM"
-      :visible.sync="dialogVisible"
-      center
-    >
-      <RegisterFormDetail v-bind:id="id" v-if="dialogVisible" />
+    <el-dialog title="Lý do từ chối đơn" :visible.sync="dialogDeny">
+      <DialogDeny :id="id" v-if="dialogDeny" />
     </el-dialog>
   </div>
 </template>
 
 <script>
 import { mapGetters, mapActions } from "vuex";
-import RegisterFormDetail from "./modal/RegisterFormDetail";
 import { centerRegisterStatus } from "@/enum/center-register-status-enum";
 import EventBus from "@/EventBus";
+import { changeStatusRegisterCenterFormByIdAPI } from "@/api/admin/registerCenterFormApi";
+import CenterService from "@/services/CenterService";
+import DialogDeny from "./modal/DialogDeny";
 export default {
   components: {
-    RegisterFormDetail,
+    DialogDeny,
   },
   data() {
     return {
       listForm: [],
       totalForm: 0,
       dialogVisible: false,
-      loading : false
+      loading: false,
+      dialogDeny: false,
     };
   },
   computed: {
     ...mapGetters("registerForm", ["getListForm", "getTotalForm"]),
+    getUser() {
+      let user = localStorage.getItem("admin");
+      return JSON.parse(user);
+    },
   },
 
   methods: {
@@ -98,10 +105,83 @@ export default {
           email: data.email,
           status: centerRegisterStatus.get(data.centerRegistrationStatus).name,
           color: centerRegisterStatus.get(data.centerRegistrationStatus).color,
+          insertedAt: this.getDatetime(data.insertedAt),
         };
         this.listForm.push(store);
       });
       this.loading = false;
+    },
+
+    getDatetime(createdDate) {
+      let date = new Date(createdDate);
+      let mm = date.getMonth() + 1;
+      let dd = date.getDate();
+      return (
+        (dd > 9 ? "" : "0") +
+        dd +
+        "-" +
+        (mm > 9 ? "" : "0") +
+        mm +
+        "-" +
+        date.getFullYear() +
+        " "
+      );
+    },
+
+    saveCenterToRealtimeDB(id) {
+      let today = new Date();
+      let date =
+        today.getFullYear() +
+        "-" +
+        (today.getMonth() + 1) +
+        "-" +
+        today.getDate();
+      let time =
+        today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+      let datetime = date + " " + time;
+
+      let data = {
+        Notification: {
+          "create-center": {
+            date: datetime,
+            isCheck: false,
+            type: 3,
+          },
+        },
+      };
+
+      CenterService.create(id, data)
+        .then(() => {
+          console.log("Created new item successfully!");
+        })
+        .catch((e) => {
+          console.log(e);
+        });
+    },
+
+    async changeStatus(id, status) {
+      this.loading = true;
+      let data = {
+        id: id,
+        status,
+      };
+      await changeStatusRegisterCenterFormByIdAPI(
+        data,
+        this.getUser.token
+      ).then((response) => {
+        if (response.status == 200) {
+          response.text().then((data) => {
+            this.loading = false;
+            if (status == 2) {
+              this.saveCenterToRealtimeDB(data);
+            }
+            EventBus.$emit("CloseDialog", false);
+          });
+        } else {
+          console.log("error");
+          this.loading = false;
+        }
+      });
     },
 
     async getCenter(page) {
@@ -113,8 +193,11 @@ export default {
     },
 
     goToDetail(id) {
-      this.dialogVisible = true;
+       this.$router.push({ name: "RegisterCenterFormDetail", params: { id } });
+    },
+    showDenyDialog(id) {
       this.id = id;
+      this.dialogDeny = true;
     },
   },
 
@@ -128,7 +211,6 @@ export default {
   created() {
     this.loading = true;
     this.getCenter(1);
-
   },
 };
 </script>

@@ -1,16 +1,16 @@
 import { baseURL } from "../../enum/consts";
 
-export function getListCenterPagingAPI() {
-    let data = {
+export function getListCenterPagingAPI(data) {
+    let params = {
         keyword: "",
         pageIndex: 1
     }
-    return fetch(baseURL + `api/search-center?Keyword=${data.keyword}&PageIndex=${data.pageIndex}`, {
+    return fetch(baseURL + `api/search-center?Keyword=${params.keyword}&PageIndex=${params.pageIndex}`, {
         method: "GET",
         headers: {
             "content-type": "application/json",
             Accept: "*/*",
-            // Authorization: "Bearer " + IdToken
+            Authorization: "Bearer " + data.token
         }
     });
 }

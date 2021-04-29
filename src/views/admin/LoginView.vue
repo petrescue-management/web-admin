@@ -79,7 +79,7 @@ export default {
               message: "Login thành công",
               type: "success",
             });
-            this.$router.push({ name: "MainAdmin" });
+            this.$router.push({ name: "CenterList" });
           } else {
             this.fullscreenLoading = false;
             this.$message({

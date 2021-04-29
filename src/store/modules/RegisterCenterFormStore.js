@@ -63,18 +63,21 @@ export default {
                 email: null,
                 description: null,
                 status: null,
+                imageUrl: null,
             };
             await getRegisterCenterFormByIdAPI(data)
                 .then(response => response.json())
                 .then(data => {
                     form = {
-                        id: data.formId,
+                        id: data.centerRegistrationId,
                         name: data.centerName,
                         phone: data.phone,
                         address: data.centerAddress,
                         email: data.email,
                         description: data.description,
-                        status: data.centerRegisterStatus,
+                        status: data.centerRegistrationStatus,
+                        imageUrl: data.imageUrl,
+                        date: data.insertedAt
                     }
 
                     commit("SET_FORM_DETAIL", form);

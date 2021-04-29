@@ -26,19 +26,14 @@ export function getRegisterCenterFormByIdAPI(data) {
     });
 }
 
-export function changeStatusRegisterCenterFormByIdAPI(data) {
-    console.log(data);
-    let requestBody = {
-        id: data.id,
-        status: data.status
-    }
+export function changeStatusRegisterCenterFormByIdAPI(data, token) {
     return fetch(baseURL + `api/procress-center-registration-form`, {
         method: "POST",
         headers: {
             "content-type": "application/json",
             Accept: "*/*",
-            Authorization: "Bearer " + data.idToken
+            Authorization: "Bearer " + token
         },
-        body: JSON.stringify(requestBody),
+        body: JSON.stringify(data),
     });
 }

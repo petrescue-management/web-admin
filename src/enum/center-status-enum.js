@@ -1,5 +1,5 @@
 export const centerStatus = new Map([
-    [1, { name: "Opening", color: "success" }],
-    [2, { name: "Overloaded", color: "warning" }],
-    [3, { name: "Closed", color: "danger" }],
+    [1, { name: "Đang mở", color: "success" }],
+    [2, { name: "Quá tải", color: "warning" }],
+    [3, { name: "Đóng cửa", color: "danger" }],
 ]);

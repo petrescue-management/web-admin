@@ -1,5 +1,5 @@
 export const centerRegisterStatus = new Map([
-    [1, { name: "Processing", color: "warning" }],
-    [2, { name: "Approved", color: "success" }],
-    [3, { name: "Rejected", color: "danger" }],
+    [1, { name: "Đang chờ xử lý", color: "warning" }],
+    [2, { name: "Đã chấp thuận", color: "success" }],
+    [3, { name: "Đã từ chối", color: "danger" }],
 ]);
