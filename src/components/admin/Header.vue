@@ -37,6 +37,7 @@
             Thông báo <span class="badge2 badge-danger">{{ count }}</span>
           </b-dropdown-text>
           <b-dropdown-divider></b-dropdown-divider>
+          <div class="list">
           <b-dropdown-item class="noti" v-for="noti in listNoti" :key="noti.id">
             <b-row @click="goToDetail(noti.id)">
               <b-col sm="2" style="margin: auto auto auto 0; padding: 0">
@@ -53,6 +54,7 @@
               <b-col> </b-col>
             </b-row>
           </b-dropdown-item>
+          </div>
         </b-nav-item-dropdown>
       </b-navbar-nav>
     </b-collapse>
@@ -60,7 +62,7 @@
 </template>
 <script>
 import { mapActions } from "vuex";
-import CenterService from "../../services/CenterService";
+import SystemService from "../../services/SystemService";
 import { Notification } from "@/enum/consts";
 export default {
   name: "Navbar",
@@ -83,8 +85,8 @@ export default {
       let value = {
         isCheck: true,
       };
-      CenterService.updateNoti(this.getUser.centerId, id, value);
-      this.$router.push({ name: "ReportRescue" });
+      SystemService.updateNoti(id, value);
+      this.$router.push({ name: "RegisterCenterFormDetail", params: { id } });
     },
 
     signout() {
@@ -142,12 +144,12 @@ export default {
     },
   },
 
-  // mounted() {
-  //   CenterService.getListNoti(this.getUser.centerId).on(
-  //     "value",
-  //     this.onDataChange
-  //   );
-  // },
+  mounted() {
+    SystemService.getListNoti(this.getUser.centerId).on(
+      "value",
+      this.onDataChange
+    );
+  },
 };
 </script>
 <style scoped>
@@ -167,7 +169,12 @@ export default {
   text-align: center;
   border-radius: 10px;
 }
-
+.list {
+  max-height: 500px;
+  height: auto;
+  overflow: hidden;
+  overflow-y: auto;
+}
 .badge2 {
   padding: 3px 5px 2px;
   top: 8px;
