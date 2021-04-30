@@ -2,10 +2,10 @@
   <div>
     <el-main>
       <div style="text-align: left; padding: 20px 0px">
-        <span class="title">Danh sánh loại thú cưng</span>
+        <span class="title">Danh sánh giống loài của thú cưng</span>
       </div>
       <div>
-        <b-card header="Thêm loại thú cưng" header-tag="header">
+        <b-card header="Thêm giống loại của thú cưng" header-tag="header">
           <el-form :model="form" :rules="rules" ref="form" label-width="120px">
             <el-row>
               <el-col :span="7">
@@ -26,7 +26,7 @@
             </el-row>
             <el-row>
               <el-col :span="7">
-                <el-form-item label="Nhập loại Pet" prop="breed">
+                <el-form-item label="Nhập giống loại Pet" class="label-inline" prop="breed">
                   <el-input v-model="form.breed"></el-input>
                 </el-form-item>
               </el-col>
@@ -168,4 +168,8 @@ export default {
 .small {
   max-width: 500px;
 }
+
+.label-inline >>> .el-form-item__label {
+  line-height: initial;
+} 
 </style>
