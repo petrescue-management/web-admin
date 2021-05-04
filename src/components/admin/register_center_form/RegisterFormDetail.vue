@@ -198,10 +198,19 @@ export default {
             if (status == 2) {
               this.saveCenterToRealtimeDB(data);
             }
+            this.$message({
+              message: "Chấp thuận thành công",
+              type: "success",
+            });
+            this.getData();
             EventBus.$emit("CloseDialog", false);
           });
         } else {
           console.log("error");
+          this.$message({
+              message: "Đã xảy ra lỗi",
+              type: "error",
+            });
           this.loading = false;
         }
       });
