@@ -69,13 +69,13 @@ export default {
                 .then(response => response.json())
                 .then(data => {
                     form = {
-                        id: data.centerRegistrationId,
+                        id: data.centerRegistrationFormId,
                         name: data.centerName,
                         phone: data.phone,
                         address: data.centerAddress,
                         email: data.email,
                         description: data.description,
-                        status: data.centerRegistrationStatus,
+                        status: data.centerRegistrationFormStatus,
                         imageUrl: data.imageUrl,
                         date: data.insertedAt
                     }

@@ -1,5 +1,5 @@
 //export const baseURL = "https://localhost:44305/"
-export const baseURL = "https://petrescueapi.azurewebsites.net/"
+export const baseURL = "https://petrescuecapston.azurewebsites.net/"
 
 export const Notification = new Map([
     [1, {

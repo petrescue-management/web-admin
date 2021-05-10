@@ -5,7 +5,7 @@ export function getListCenterPagingAPI(data) {
         keyword: "",
         pageIndex: 1
     }
-    return fetch(baseURL + `api/search-center?Keyword=${params.keyword}&PageIndex=${params.pageIndex}`, {
+    return fetch(baseURL + `api/centers/search-center?Keyword=${params.keyword}&PageIndex=${params.pageIndex}`, {
         method: "GET",
         headers: {
             "content-type": "application/json",
@@ -16,7 +16,7 @@ export function getListCenterPagingAPI(data) {
 }
 
 export function getCenterById(idCenter) {
-    return fetch(baseURL + `api/get-center-by-id/${idCenter}`, {
+    return fetch(baseURL + `api/centers/get-center-by-id/${idCenter}`, {
         method: "POST",
         headers: {
             "content-type": "application/json; charset=utf-8 ",
@@ -27,7 +27,7 @@ export function getCenterById(idCenter) {
 }
 
 export function deleteCenter(idCenter) {
-    return fetch(baseURL + `api/DeleteCenter?id=${idCenter}`, {
+    return fetch(baseURL + `api/centers/delete-center?id=${idCenter}`, {
         method: "POST",
         headers: {
             "content-type": "application/json",
@@ -35,17 +35,5 @@ export function deleteCenter(idCenter) {
             // Authorization: "Bearer " + IdToken
         },
         // body: JSON.stringify(data),
-    });
-}
-
-export function createCenter(data) {
-    return fetch(baseURL + `api/CreateCenter`, {
-        method: "POST",
-        headers: {
-            "content-type": "application/json",
-            Accept: "*/*",
-            // Authorization: "Bearer " + IdToken
-        },
-        body: JSON.stringify(data),
     });
 }

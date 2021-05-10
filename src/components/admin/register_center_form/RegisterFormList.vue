@@ -98,13 +98,13 @@ export default {
       this.listForm = [];
       list.forEach((data) => {
         let store = {
-          id: data.centerRegistrationId,
+          id: data.centerRegistrationFormId,
           name: data.centerName,
           phone: data.phone,
           address: data.centerAddress,
           email: data.email,
-          status: centerRegisterStatus.get(data.centerRegistrationStatus).name,
-          color: centerRegisterStatus.get(data.centerRegistrationStatus).color,
+          status: centerRegisterStatus.get(data.centerRegistrationFormStatus).name,
+          color: centerRegisterStatus.get(data.centerRegistrationFormStatus).color,
           insertedAt: this.getDatetime(data.insertedAt),
         };
         this.listForm.push(store);

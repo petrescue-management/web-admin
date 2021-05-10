@@ -1,7 +1,7 @@
 import { baseURL } from "../../enum/consts";
 
 export function getListRegisterCenterFormPagingAPI() {
-    return fetch(baseURL + `api/search-center-registration-form`, {
+    return fetch(baseURL + `api/center-registration-forms/search-center-registration-form`, {
         method: "GET",
         headers: {
             "content-type": "application/json",
@@ -16,7 +16,7 @@ export function getListRegisterCenterFormPagingAPI() {
 }
 
 export function getRegisterCenterFormByIdAPI(data) {
-    return fetch(baseURL + `api/get-center-registration-form-by-id/${data.id}`, {
+    return fetch(baseURL + `api/center-registration-forms/get-center-registration-form-by-id/${data.id}`, {
         method: "GET",
         headers: {
             "content-type": "application/json",
@@ -27,7 +27,7 @@ export function getRegisterCenterFormByIdAPI(data) {
 }
 
 export function changeStatusRegisterCenterFormByIdAPI(data, token) {
-    return fetch(baseURL + `api/procress-center-registration-form`, {
+    return fetch(baseURL + `api/center-registration-forms/procress-center-registration-form`, {
         method: "POST",
         headers: {
             "content-type": "application/json",
