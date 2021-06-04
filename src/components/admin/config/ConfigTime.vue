@@ -10,18 +10,36 @@
             <el-row>
               <el-col>
                 <el-form-item
-                  label="Thời gian gửi lại thông báo"
-                  prop="reNotiTimeForRescue"
+                  label="Thời gian gửi lại thông báo cho các tình nguyện viên online"
                 >
                   <el-input-number
                     :controls="false"
-                    v-model="form.reNotiTimeForRescue.hour"
+                    v-model="form.reNotiTimeForOnline.hour"
                   ></el-input-number>
                   Giờ
                   <el-input-number
                     style="margin-left: 30px"
                     :controls="false"
-                    v-model="form.reNotiTimeForRescue.min"
+                    v-model="form.reNotiTimeForOnline.min"
+                  ></el-input-number
+                  >Phút
+                </el-form-item>
+              </el-col>
+            </el-row>
+            <el-row>
+              <el-col>
+                <el-form-item
+                  label="Thời gian gửi lại thông báo cho tất cả các tình nguyện viên"
+                >
+                  <el-input-number
+                    :controls="false"
+                    v-model="form.reNotiTimeForAll.hour"
+                  ></el-input-number>
+                  Giờ
+                  <el-input-number
+                    style="margin-left: 30px"
+                    :controls="false"
+                    v-model="form.reNotiTimeForAll.min"
                   ></el-input-number
                   >Phút
                 </el-form-item>
@@ -70,21 +88,10 @@
                 </el-form-item>
               </el-col>
             </el-row>
-            <el-col style="text-align: center">
-              <el-button type="primary" @click="saveConfigTime()">
-                Lưu</el-button
-              >
-            </el-col>
-          </el-form>
-        </b-card>
-        <br />
-        <b-card header="Cài đặt số lượng ảnh" header-tag="header">
-          <el-form :model="form" ref="form" label-width="300px">
             <el-row>
               <el-col>
                 <el-form-item
                   label="Số lượng ảnh tối đa của member"
-                  prop="reNotiTimeForRescue"
                 >
                   <el-input-number
                     :controls="false"
@@ -94,7 +101,6 @@
                 </el-form-item>
                 <el-form-item
                   label="Số lượng ảnh tối đa của tình nguyện viên"
-                  prop="reNotiTimeForRescue"
                 >
                   <el-input-number
                     :controls="false"
@@ -104,11 +110,28 @@
                 </el-form-item>
               </el-col>
             </el-row>
+            <el-row>
+              <el-col>
+                <el-form-item
+                  label="Khoảnh cách gần nhất"
+                  prop="nearestDistance"
+                >
+                  <el-input-number
+                    :controls="false"
+                    v-model="form.nearestDistance"
+                  ></el-input-number>
+                  m
+                </el-form-item>
+              </el-col>
+            </el-row>
             <el-col style="text-align: center">
-              <el-button type="primary" @click="saveLimitImg()"> Lưu</el-button>
+              <el-button type="primary" @click="saveConfigTime('form')">
+                Lưu</el-button
+              >
             </el-col>
           </el-form>
         </b-card>
+        <br />
       </div>
     </el-main>
   </div>
@@ -116,9 +139,18 @@
 
 <script>
 import { getConfigTimeAPI, configTimeAPI } from "@/api/admin/configApi";
-import ConfigService from "../../../services/ConfigService";
 export default {
   data() {
+    var checkNearestDistance = (rule, value, callback) => {
+      console.log(rule);
+      setTimeout(() => {
+        if (value < 5000) {
+          callback(new Error("Phải lớn hơn 5000m"));
+        } else {
+          callback();
+        }
+      }, 1000);
+    };
     return {
       loading: false,
       rules: {
@@ -127,9 +159,17 @@ export default {
           message: "Không được để trống",
           trigger: "blur",
         },
+        nearestDistance: {
+          validator: checkNearestDistance,
+          trigger: "blur",
+        },
       },
       form: {
-        reNotiTimeForRescue: {
+        reNotiTimeForOnline: {
+          hour: 0,
+          min: 0,
+        },
+        reNotiTimeForAll: {
           hour: 0,
           min: 0,
         },
@@ -143,7 +183,8 @@ export default {
           min: 0,
         },
         limitImgForVolunteer: 0,
-        limitImgForMember:0,
+        limitImgForMember: 0,
+        nearestDistance: 0,
       },
     };
   },
@@ -154,107 +195,97 @@ export default {
     },
   },
 
-  mounted() {
-    ConfigService.getLimitImg().on("value", this.onDataChange);
-  },
-
   methods: {
-    onDataChange(items) {
-      this.form.limitImgForVolunteer = items.val().limitImgForVolunteer
-      this.form.limitImgForMember = items.val().limitImgForMember
-    },
-
-    saveLimitImg() {
-      this.$confirm("Bạn có chắc chắn muốn thay đổi ?", {
-        confirmButtonText: "Có",
-        cancelButtonText: "Không",
-      }).then(() => {
-        this.loading = true;
-        let data = {
-          limitImgForVolunteer: this.form.limitImgForVolunteer,
-          limitImgForMember: this.form.limitImgForMember,
-        };
-        ConfigService.update(data)
-          .then(() => {
-            this.$message({
-              message: "Thao tác thành công",
-              type: "success",
-            });
-          })
-          .catch((e) => {
-            console.log(e);
-          });
-        this.loading = false;
-      });
-    },
-
     async getConfig() {
       this.loading = true;
       await getConfigTimeAPI(this.getUser.token)
         .then((response) => response.json())
         .then((data) => {
-          this.form.reNotiTimeForRescue = {
-            hour: this.covertMinToHrs(data.reNotiTimeForRescue),
-            min: this.covertMinToMin(data.reNotiTimeForRescue),
+          this.form.reNotiTimeForOnline = {
+            hour: this.covertMinToHrs(data.reNotiTimeForOnlineRescue),
+            min: this.covertMinToMin(data.reNotiTimeForOnlineRescue),
+          };
+          this.form.reNotiTimeForAll = {
+            hour: this.covertMinToHrs(data.reNotiTimeForAllRescue),
+            min: this.covertMinToMin(data.reNotiTimeForAllRescue),
           };
           this.form.destroyNotiTimeForRescue = {
-            hour: this.covertMinToHrs(data.destroyNotiTimeForRescue),
-            min: this.covertMinToMin(data.destroyNotiTimeForRescue),
+            hour: this.covertMinToHrs(data.notiTimeForDestroyRescue),
+            min: this.covertMinToMin(data.notiTimeForDestroyRescue),
           };
           this.form.remindTimeAfterAdopt = {
             day: this.covertMinToDay(data.remindTimeAfterAdopt),
             hour: this.covertMinToDayHours(data.remindTimeAfterAdopt),
             min: this.covertMinToMin(data.remindTimeAfterAdopt),
           };
+          this.form.limitImgForVolunteer = data.imageForPicker;
+          this.form.limitImgForMember = data.imageForFinder;
+          this.form.nearestDistance = data.nearestDistance;
         });
       this.loading = false;
     },
 
-    saveConfigTime() {
-      let data = {
-        token: this.getUser.token,
-        reNotiTime: this.covertDayHoursMinToMin(
-          0,
-          this.form.reNotiTimeForRescue.hour,
-          this.form.reNotiTimeForRescue.min
-        ),
-        destroyNotiTime: this.covertDayHoursMinToMin(
-          0,
-          this.form.destroyNotiTimeForRescue.hour,
-          this.form.destroyNotiTimeForRescue.min
-        ),
-        remindTime: this.covertDayHoursMinToMin(
-          this.form.remindTimeAfterAdopt.day,
-          this.form.remindTimeAfterAdopt.hour,
-          this.form.remindTimeAfterAdopt.min
-        ),
-      };
-      if (data.destroyNotiTime > data.reNotiTime) {
-        this.$confirm("Bạn có chắc chắn muốn thay đổi ?", {
-          confirmButtonText: "Có",
-          cancelButtonText: "Không",
-        })
-          .then(async () => {
-            this.loading = true;
-            await configTimeAPI(data).then((response) => {
-              if (response.status == 200) {
-                this.$message({
-                  message: "Thao tác thành công",
-                  type: "success",
+    saveConfigTime(formName) {
+      this.$refs[formName].validate((valid) => {
+        if (valid) {
+          let data = {
+            token: this.getUser.token,
+            reNotiTimeForOnline: this.covertDayHoursMinToMin(
+              0,
+              this.form.reNotiTimeForOnline.hour,
+              this.form.reNotiTimeForOnline.min
+            ),
+            reNotiTimeForAll: this.covertDayHoursMinToMin(
+              0,
+              this.form.reNotiTimeForAll.hour,
+              this.form.reNotiTimeForAll.min
+            ),
+            destroyNotiTime: this.covertDayHoursMinToMin(
+              0,
+              this.form.destroyNotiTimeForRescue.hour,
+              this.form.destroyNotiTimeForRescue.min
+            ),
+            remindTime: this.covertDayHoursMinToMin(
+              this.form.remindTimeAfterAdopt.day,
+              this.form.remindTimeAfterAdopt.hour,
+              this.form.remindTimeAfterAdopt.min
+            ),
+            imgPicker: this.form.limitImgForVolunteer,
+            imgFinder: this.form.limitImgForMember,
+            nearestDistance: this.form.nearestDistance,
+          };
+          if (data.destroyNotiTime > data.reNotiTimeForAll) {
+            this.$confirm("Bạn có chắc chắn muốn thay đổi ?", {
+              confirmButtonText: "Có",
+              cancelButtonText: "Không",
+            })
+              .then(async () => {
+                this.loading = true;
+                await configTimeAPI(data).then((response) => {
+                  if (response.status == 200) {
+                    this.$message({
+                      message: "Thao tác thành công",
+                      type: "success",
+                    });
+                  }
                 });
-              }
+                this.loading = false;
+              })
+              .catch(() => {});
+          } else {
+            this.$message({
+              message: "Thời gian huỷ đơn phải lớn hơn thời gian thông báo lại",
+              type: "error",
             });
-            this.loading = false;
-          })
-          .catch(() => {});
-      } else {
-        this.$message({
-          message: "Thời gian huỷ đơn phải lớn hơn thời gian thông báo lại",
-          type: "error",
-        });
-      }
-
-      console.log(data);
+          }
+        } else {
+          this.$message({
+              message: "Số nhập không hợp lệ",
+              type: "error",
+            });
+          return false;
+        }
+      });
     },
 
     covertMinToHrs(minutes) {

@@ -27,11 +27,17 @@
           <span>Đơn đăng kí trung tâm</span>
         </template>
       </el-menu-item>
-       <el-menu-item
+      <el-menu-item
         index="3"
-        :route="{ name: 'User' }"
-        @click="goTo('User')"
+        :route="{ name: 'VolunteerRegistrationForm' }"
+        @click="goTo('VolunteerRegistrationForm')"
       >
+        <template slot="title">
+          <i class="el-icon-s-claim"></i>
+          <span>Đơn đăng kí tình nguyện viên</span>
+        </template>
+      </el-menu-item>
+      <el-menu-item index="4" :route="{ name: 'User' }" @click="goTo('User')">
         <template slot="title">
           <i class="el-icon-s-custom"></i>
           <span>Người dùng</span>
@@ -43,26 +49,26 @@
           <span>Thông tin pet</span>
         </template>
         <el-menu-item
-          index="4"
+          index="5"
           :route="{ name: 'PetType' }"
           @click="goTo('PetType')"
           >Loại pet</el-menu-item
         >
         <el-menu-item
-          index="5"
+          index="6"
           :route="{ name: 'PetColor' }"
           @click="goTo('PetColor')"
           >Màu sắc</el-menu-item
         >
         <el-menu-item
-          index="6"
+          index="7"
           :route="{ name: 'PetBreed' }"
           @click="goTo('PetBreed')"
           >Giống loài</el-menu-item
         >
       </el-submenu>
       <el-menu-item
-        index="7"
+        index="8"
         :route="{ name: 'ConfigTime' }"
         @click="goTo('ConfigTime')"
       >
@@ -93,20 +99,24 @@ export default {
       case "RegisterCenterFormDetail":
         this.activeIndex = "2";
         break;
-      case "User":
+      case "VolunteerRegistrationForm":
+      case "RegistrationFormDetail":
         this.activeIndex = "3";
         break;
-      case "PetType":
+      case "User":
         this.activeIndex = "4";
         break;
-      case "PetColor":
+      case "PetType":
         this.activeIndex = "5";
         break;
-      case "PetBreed":
+      case "PetColor":
         this.activeIndex = "6";
         break;
-      case "ConfigTime":
+      case "PetBreed":
         this.activeIndex = "7";
+        break;
+      case "ConfigTime":
+        this.activeIndex = "8";
         break;
       default:
         break;

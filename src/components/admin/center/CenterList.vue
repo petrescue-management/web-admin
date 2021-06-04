@@ -8,12 +8,6 @@
         <el-table :data="listCenter" v-loading="loading">
           <el-table-column type="expand">
             <template slot-scope="props">
-              <p>
-                Số lượng tình nguyện viên:
-                <span style="color: red">
-                  {{ props.row.countOfVolunteer }}
-                </span>
-              </p>
               <p>Các lần hoạt động cứu hộ gần nhất:</p>
               <ul class="list">
                 <li v-for="date in props.row.lastedDocuments" :key="date">
@@ -111,7 +105,6 @@ export default {
           address: data.address,
           status: centerStatus.get(data.centerStatus).name,
           color: centerStatus.get(data.centerStatus).color,
-          countOfVolunteer: data.countOfVolunteer,
           lastedDocuments: data.lastedDocuments,
         };
         this.listCenter.push(store);

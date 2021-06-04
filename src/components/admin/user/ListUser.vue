@@ -1,113 +1,52 @@
 <template>
   <div>
     <el-main>
-      <div style="text-align: left; padding: 20px 0px">
-        <span class="title">Danh sách người dùng</span>
+      <div class="row bg-title form-adoption">
+        <div style="width: 5%"></div>
+        <div style="width: 90%; margin: auto; z-index: 2">
+          <h1 class="title">Danh sách người dùng</h1>
+        </div>
       </div>
-      <div>
-        <el-table :data="listForm" v-loading="loading">
-          <el-table-column width="200" height="180">
-            <template slot="header" slot-scope="scope">
-              <el-input
-                v-model="search"
-                size="mini"
-                placeholder="Gõ tên"
-                :name="scope"
-              />
-            </template>
-            <template slot-scope="scope">
-              <img :src="scope.row.imgUrl" width="70px" />
-            </template>
-          </el-table-column>
-          <el-table-column prop="email" label="Email"></el-table-column>
-          <el-table-column prop="name" label="Name"></el-table-column>
-          <el-table-column prop="doB" label="Ngày sinh"></el-table-column>
-          <el-table-column prop="phone" label="Phone"></el-table-column>
-        </el-table>
-        <!-- <el-pagination
-          background
-          @current-change="handleCurrentChange"
-          :current-page.sync="currentPage"
-          :total="length"
-          layout="prev, pager, next"
-        ></el-pagination> -->
+      <br />
+
+      <div style="padding: 0 10px">
+        <b-card header="Danh sách người dùng" header-tag="header">
+          <el-tabs v-model="activeName" type="border-card">
+            <el-tab-pane label="Thành viên" name="1">
+              <Member  v-if="activeName == '1'"/>
+            </el-tab-pane>
+            <el-tab-pane label="Tình nguyện viên" name="2">
+              <volunteer v-if="activeName == '2'"/>
+            </el-tab-pane>
+          </el-tabs>
+        </b-card>
       </div>
     </el-main>
   </div>
 </template>
 
 <script>
-import { getListUserAPI } from "@/api/admin/userApi";
+import Member from './modal/Member.vue';
+import Volunteer from './modal/Volunteer.vue';
 export default {
-  data() {
-    return {
-      listForm: [],
-      totalForm: 0,
-      loading: false,
-      search: '',
-    };
-  },
-
+  components: { Member,Volunteer },
   computed: {
     getUser() {
-      let user = localStorage.getItem("admin");
+      let user = localStorage.getItem("user");
       return JSON.parse(user);
     },
   },
 
-  methods: {
-    getTableData(list) {
-      this.listForm = [];
-      list.forEach((data) => {
-        let user = {
-          email: data.email,
-          userId: data.userId,
-          name: data.lastName + " " + data.firstName,
-          doB: this.getDatetime(data.doB),
-          gender: data.gender,
-          phone: data.phone,
-          imgUrl: data.imgUrl,
-        };
-        this.listForm.push(user);
-      });
-      this.loading = false;
-    },
-
-    getDatetime(createdDate) {
-      let date = new Date(createdDate);
-      let mm = date.getMonth() + 1;
-      let dd = date.getDate();
-      return (
-        (dd > 9 ? "" : "0") +
-        dd +
-        "-" +
-        (mm > 9 ? "" : "0") +
-        mm +
-        "-" +
-        date.getFullYear() +
-        " "
-      );
-    },
-
-    async getCenter(page) {
-      this.loading = true;
-      let data = {
-        page,
-        token: this.getUser.token,
-      };
-      await getListUserAPI(data).then((response) => {
-        if (response.status == 200) {
-          response.json().then((data) => {
-            this.getTableData(JSON.parse(JSON.stringify(data.result)));
-          });
-        }
-      });
-      this.loading = false;
-    },
+  data() {
+    return {
+      dialogVisible: false,
+      dialogAddVisible: false,
+      img: require("@/assets/img/avatar.jpg"),
+      activeName: '1',
+    };
   },
 
   created() {
-    this.getCenter(0);
   },
 };
 </script>
@@ -116,10 +55,13 @@ export default {
 .el-main {
   background-color: #e9eef3;
   color: #333;
-  height: 89vh;
+  padding: 0;
 }
 .title {
-  font-size: 25px;
+  font-size: 35px;
+  color: #fff;
+  text-transform: capitalize;
+  font-weight: 700;
 }
 .small {
   max-width: 500px;

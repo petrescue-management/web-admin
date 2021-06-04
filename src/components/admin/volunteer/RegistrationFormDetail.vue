@@ -4,7 +4,7 @@
       <div class="row bg-title pet-detail">
         <div style="width: 5%"></div>
         <div style="width: 90%; margin: auto; z-index: 2">
-          <h1 class="title">Thông Tin Đơn Đăng Ký Trung Tâm</h1>
+          <h1 class="title">Thông Tin Đơn Đăng Ký Tình Nguyện Viên</h1>
         </div>
       </div>
       <div style="padding: 20px 0 0 20px">
@@ -37,7 +37,7 @@
               <el-button
                 type="success"
                 icon="el-icon-circle-check"
-                @click="changeStatus(form.id, 2)"
+                @click="acceptVolunteerForm()"
                 v-show="getStatus == 1 ? true : false"
                 >Chấp thuận</el-button
               >
@@ -72,9 +72,8 @@
 import { mapGetters, mapActions } from "vuex";
 import RegisterForm from "./modal/RegisterForm.vue";
 import { centerRegisterStatus } from "@/enum/center-register-status-enum";
-import { changeStatusRegisterCenterFormByIdAPI } from "@/api/admin/registerCenterFormApi";
+import { changeStatusVolunteerRegistrationFormAPI } from "@/api/admin/userApi";
 import DialogDeny from "./modal/DialogDeny";
-import CenterService from "@/services/CenterService";
 import EventBus from "@/EventBus";
 export default {
   components: {
@@ -90,7 +89,7 @@ export default {
   },
 
   computed: {
-    ...mapGetters("registerForm", ["getFormDetail"]),
+    ...mapGetters("volunteer", ["getFormDetail"]),
     getUser() {
       let user = localStorage.getItem("admin");
       return JSON.parse(user);
@@ -102,24 +101,53 @@ export default {
   },
 
   methods: {
-    ...mapActions("registerForm", ["getRegisterFormDetail"]),
+    ...mapActions("volunteer", ["getListVolunteerRegistrationFormById"]),
 
     back() {
-      this.$router.push({ name: "RegisterCenterFormList" });
+      this.$router.push({ name: "VolunteerRegistrationForm" });
+    },
+
+    acceptVolunteerForm() {
+      let data = {
+        token: this.getUser.token,
+        id: this.form.id,
+        status: 2,
+        isName: false,
+        isEmail: false,
+        isPhone: false,
+        anotherReason: null,
+      };
+      this.$confirm("Bạn có chắc chắn muốn chấp nhận đơn đăng ký này?", {
+        confirmButtonText: "Chấp nhận",
+        cancelButtonText: "Đóng",
+      }).then(async () => {
+        this.loading = true;
+        await changeStatusVolunteerRegistrationFormAPI(data).then(
+          (response) => {
+            if (response.status == 200) {
+              this.$message({
+                message: "Thao tác thành công",
+                type: "success",
+              });
+              this.getData();
+            }
+            this.loading = false;
+          }
+        );
+      });
     },
 
     getDetail() {
       this.form = {
-        id: this.getFormDetail.id,
-        name: this.getFormDetail.name,
-        date: this.getDatetime(this.getFormDetail.date),
+        id: this.getFormDetail.formId,
+        name: this.getFormDetail.lastName + " " + this.getFormDetail.firstName,
+        date: this.getDatetime(this.getFormDetail.insertAt),
         phone: this.getFormDetail.phone,
-        address: this.getFormDetail.address,
         email: this.getFormDetail.email,
-        description: this.getFormDetail.description,
         status: centerRegisterStatus.get(this.getFormDetail.status).name,
         color: centerRegisterStatus.get(this.getFormDetail.status).color,
         statusCode: this.getFormDetail.status,
+        dob: this.getDatetime(this.getFormDetail.dob),
         imageUrl: this.getFormDetail.imageUrl
           ? this.getListImg(this.getFormDetail.imageUrl)
           : "",
@@ -151,96 +179,31 @@ export default {
       }
     },
 
-    saveCenterToRealtimeDB(id) {
-      let today = new Date();
-      let date =
-        today.getFullYear() +
-        "-" +
-        (today.getMonth() + 1) +
-        "-" +
-        today.getDate();
-      let time =
-        today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
-      let datetime = date + " " + time;
-
-      let data = {
-        Notification: {
-          "create-center": {
-            date: datetime,
-            isCheck: false,
-            type: 3,
-          },
-        },
-      };
-
-      CenterService.create(id, data)
-        .then(() => {
-          console.log("Created new item successfully!");
-        })
-        .catch((e) => {
-          console.log(e);
-        });
-    },
-
-    async changeStatus(id, status) {
-      this.loading = true;
-      let data = {
-        id: id,
-        status,
-      };
-      await changeStatusRegisterCenterFormByIdAPI(
-        data,
-        this.getUser.token
-      ).then((response) => {
-        if (response.status == 200) {
-          response.text().then((data) => {
-            this.loading = false;
-            if (status == 2) {
-              this.saveCenterToRealtimeDB(data);
-            }
-            this.$message({
-              message: "Chấp thuận thành công",
-              type: "success",
-            });
-            this.getData();
-          });
-        } else {
-          console.log("error");
-          this.$message({
-              message: "Đã xảy ra lỗi",
-              type: "error",
-            });
-          this.loading = false;
-        }
-      });
-    },
-
     showDenyDialog(id) {
       this.id = id;
       this.dialogDeny = true;
-    },
-
-    mounted() {
-      EventBus.$on("CloseDialog", (value) => {
-        this.dialogVisible = value;
-        this.getData();
-      });
     },
 
     async getData() {
       this.loading = true;
       let id = this.$router.history.current.params.id;
       let data = {
+        token: this.getUser.token,
         id,
       };
-      this.getRegisterFormDetail(data).then(() => {
+      this.getListVolunteerRegistrationFormById(data).then(() => {
         this.getDetail();
       });
       this.loading = false;
     },
   },
 
-  mounted() {},
+  mounted() {
+    EventBus.$on("CloseVolDenyDialog", () => {
+      this.dialogDeny = false;
+      this.getData();
+    });
+  },
 
   async created() {
     await this.getData();

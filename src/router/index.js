@@ -11,6 +11,8 @@ import PetColor from '@/components/admin/pet_color/PetColor'
 import PetBreed from '@/components/admin/pet_breed/PetBreed'
 import ConfigTime from '@/components/admin/config/ConfigTime'
 import User from '@/components/admin/user/ListUser'
+import VolunteerRegistrationForm from '@/components/admin/volunteer/VolunteerRegistrationForm'
+import RegistrationFormDetail from '@/components/admin/volunteer/RegistrationFormDetail'
 Vue.use(Router)
 
 export default new Router({
@@ -62,6 +64,16 @@ export default new Router({
                     path: "/main-admin/user",
                     name: "User",
                     component: User
+                },
+                {
+                    path: "/main-admin/volunteer-registation",
+                    name: "VolunteerRegistrationForm",
+                    component: VolunteerRegistrationForm
+                },
+                {
+                    path: "/main-admin/volunteer-registation-detail/:id",
+                    name: "RegistrationFormDetail",
+                    component: RegistrationFormDetail
                 },
             ]
         },

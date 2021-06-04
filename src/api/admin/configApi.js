@@ -97,7 +97,7 @@ export function getConfigTimeAPI(token) {
 }
 
 export function configTimeAPI(data) {
-    return fetch(baseURL + `api/config/config-time-to-notification?reNotiTime=${data.reNotiTime}&destroyNotiTime=${data.destroyNotiTime}&remindTime=${data.remindTime}`, {
+    return fetch(baseURL + `api/config/configure-systems-parameters?reNotiTimeForOnline=${data.reNotiTimeForOnline}&reNotiTimeForAll=${data.reNotiTimeForAll}&notiTimeForDestroy=${data.destroyNotiTime}&remindTime=${data.remindTime}&imgFinder=${data.imgFinder}&imgPicker=${data.imgPicker}&nearestDistance=${data.nearestDistance}`, {
         method: "POST",
         headers: {
             "content-type": "application/json",
